@@ -1,0 +1,49 @@
+{
+  "variables": {
+    "client_id": "{{env `CLIENT_ID`}}",
+    "client_secret": "{{env `CLIENT_SECRET`}}",
+    "subscription_id": "{{env `SUBSCRIPTION_ID`}}",
+    "tenant_id": "{{env `TENANT_ID`}}",
+    "region": "{{env `region`}}",
+    "image_resource_group_name": "{{env `image_resource_group_name`}}"
+  },
+  "builders": [{
+    "type": "azure-arm",
+
+    "client_id": "{{user `client_id`}}",
+    "client_secret": "{{user `client_secret`}}",
+    "subscription_id": "{{user `subscription_id`}}",
+    "tenant_id": "{{user `tenant_id`}}",
+
+    "managed_image_resource_group_name": "{{user `image_resource_group_name`}}",
+    "managed_image_name": "workshop_workstation_{{timestamp}}",
+
+    "os_type": "Windows",
+    "image_publisher": "MicrosoftWindowsServer",
+    "image_offer": "WindowsServer",
+    "image_sku": "2019-Datacenter-with-Containers",
+
+    "communicator": "winrm",
+    "winrm_use_ssl": "true",
+    "winrm_insecure": "true",
+    "winrm_timeout": "60m",
+    "winrm_username": "packer",
+
+    "location": "{{user `region`}}",
+    "vm_size": "Standard_D4S_v3"
+  }],
+  "provisioners": [{
+    "type": "file",
+    "source": "files/Install-Workstation.ps1",
+    "destination": "c:/Windows/Temp/Install-Workstation.ps1"
+  },
+  {
+    "type": "powershell",
+    "inline": [
+      "c:/Windows/Temp/Install-Workstation.ps1",
+      "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /quit",
+      "while($true) { $imageState = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\State | Select ImageState; if($imageState.ImageState -ne 'IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE') { Write-Output $imageState.ImageState; Start-Sleep -s 10  } else { break } }"
+    
+    ]
+  }]
+}

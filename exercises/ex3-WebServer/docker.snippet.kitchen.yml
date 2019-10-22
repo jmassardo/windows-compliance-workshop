@@ -1,0 +1,20 @@
+driver:
+  name: docker
+  provision_command: 
+    - powershell -ExecutionPolicy Bypass -NoLogo -Command . { iwr -useb https://omnitruck.chef.io/install.ps1 } ^| iex; install
+    - powershell -Command $path=$env:Path + ';c:\opscode\chef\embedded\bin'; Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\' -Name Path -Value $path
+
+transport:
+  name: docker
+  socket: tcp://localhost:2375
+
+verifier:
+  name: inspec
+
+platforms:
+- name: windows
+  driver_config:
+    image: mcr.microsoft.com/windows/servercore:ltsc2019
+    platform: windows
+  run_list:
+  - recipe[web_server]
