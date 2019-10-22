@@ -28,6 +28,8 @@ Then, you'll need to create a `terraform.tfvars` file and add your subnet so you
 "tag_contact" = "jmassardo"
 "tag_ttl" = "8"
 "count" = "1"
+"image_name" = "workshop_workstation"
+"image_rg_name" = "my_image_rg"
 ```
 
 > NOTE: If you do need the security group open to all ranges, enter an asterisk `"*"` in place of the ip address/subnet.
